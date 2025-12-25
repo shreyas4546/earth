@@ -14,11 +14,38 @@ import { Hero3D } from './components/Hero3D';
 import BentoItem from './components/BentoGrid';
 import { NoiseOverlay } from './components/ui/NoiseOverlay';
 import { MagneticButton } from './components/ui/MagneticButton';
+import { CursorTrail } from './components/ui/CursorTrail';
 
 const App: React.FC = () => {
+  // Animation Variants for Stagger Effect
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.15,
+        delayChildren: 0.2,
+      },
+    },
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 40, filter: 'blur(10px)' },
+    visible: { 
+      opacity: 1, 
+      y: 0, 
+      filter: 'blur(0px)',
+      transition: { 
+        duration: 0.8, 
+        ease: [0.2, 0.65, 0.3, 0.9] as [number, number, number, number] // Smooth premium easing
+      } 
+    },
+  };
+
   return (
     <div className="relative min-h-screen w-full overflow-hidden bg-background text-white selection:bg-primary/30 selection:text-white">
       <NoiseOverlay />
+      <CursorTrail />
       <Header />
 
       {/* Ambient Background Lights (Aurora) */}
@@ -40,20 +67,22 @@ const App: React.FC = () => {
              <div className="absolute inset-0 bg-background/30 pointer-events-none" />
           </div>
 
-          <div className="z-10 flex flex-col items-center text-center max-w-4xl pointer-events-none">
+          <motion.div 
+            className="z-10 flex flex-col items-center text-center max-w-4xl pointer-events-none"
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true }}
+            variants={containerVariants}
+          >
             <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6 }}
+              variants={itemVariants}
               className="mb-6 rounded-full border border-white/10 bg-white/5 px-4 py-1.5 text-xs font-medium uppercase tracking-wider text-primary backdrop-blur-sm"
             >
               Redefining Digital Experiences
             </motion.div>
             
             <motion.h1 
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.1, type: "spring" }}
+              variants={itemVariants}
               className="mb-8 text-5xl font-bold leading-[1.1] tracking-tighter md:text-7xl lg:text-8xl"
             >
               We Craft <br />
@@ -63,18 +92,14 @@ const App: React.FC = () => {
             </motion.h1>
 
             <motion.p 
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.2 }}
+              variants={itemVariants}
               className="mb-10 max-w-xl text-lg text-gray-300 md:text-xl leading-relaxed"
             >
               Lumina is a strategic design agency blending 3D interaction, fluid motion, and robust engineering to build brands that matter.
             </motion.p>
 
             <motion.div 
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.3 }}
+              variants={itemVariants}
               className="flex gap-4 pointer-events-auto"
             >
                <MagneticButton>
@@ -89,7 +114,7 @@ const App: React.FC = () => {
                   </button>
                </MagneticButton>
             </motion.div>
-          </div>
+          </motion.div>
         </section>
 
         {/* FEATURES SECTION (Bento Grid) */}
