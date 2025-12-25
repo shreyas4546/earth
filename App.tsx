@@ -74,12 +74,6 @@ const App: React.FC = () => {
             viewport={{ once: true }}
             variants={containerVariants}
           >
-            <motion.div
-              variants={itemVariants}
-              className="mb-6 rounded-full border border-white/10 bg-white/5 px-4 py-1.5 text-xs font-medium uppercase tracking-wider text-primary backdrop-blur-sm"
-            >
-              Redefining Digital Experiences
-            </motion.div>
             
             <motion.h1 
               variants={itemVariants}

@@ -1,46 +1,7 @@
 import React, { useRef, Suspense, useState, useEffect, useMemo } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
-import { Sphere, useTexture, Instances, Instance, useGLTF } from '@react-three/drei';
+import { Sphere, useTexture, useGLTF } from '@react-three/drei';
 import * as THREE from 'three';
-
-// Fix for missing R3F types in strict environments
-declare global {
-  namespace JSX {
-    interface IntrinsicElements {
-      group: any;
-      mesh: any;
-      instancedMesh: any; 
-      meshPhongMaterial: any;
-      meshStandardMaterial: any;
-      boxGeometry: any;
-      planeGeometry: any;
-      cylinderGeometry: any;
-      sphereGeometry: any;
-      octahedronGeometry: any;
-      ambientLight: any;
-      directionalLight: any;
-    }
-  }
-}
-
-declare module 'react' {
-  namespace JSX {
-    interface IntrinsicElements {
-      group: any;
-      mesh: any;
-      instancedMesh: any;
-      meshPhongMaterial: any;
-      meshStandardMaterial: any;
-      boxGeometry: any;
-      planeGeometry: any;
-      cylinderGeometry: any;
-      sphereGeometry: any;
-      octahedronGeometry: any;
-      ambientLight: any;
-      directionalLight: any;
-    }
-  }
-}
 
 // ------------------------------------------------------------------
 // CONFIGURATION: DRACO COMPRESSION
@@ -226,19 +187,19 @@ const Satellite = () => {
 // ------------------------------------------------------------------
 const TinyStars = () => {
   const meshRef = useRef<THREE.InstancedMesh>(null);
-  const count = 300;
+  const count = 400;
   
   // Initialize star data
   const particles = useMemo(() => {
     return new Array(count).fill(0).map(() => ({
       position: new THREE.Vector3(
-        (Math.random() - 0.5) * 35, // Wide spread X
-        (Math.random() - 0.5) * 25, // Wide spread Y
-        (Math.random() - 0.5) * 15 - 8 // Mostly behind
+        (Math.random() - 0.5) * 40, // Wide spread X
+        (Math.random() - 0.5) * 30, // Wide spread Y
+        (Math.random() - 0.5) * 20 - 5 // Spread Z
       ),
       rotation: new THREE.Euler(Math.random() * Math.PI, Math.random() * Math.PI, 0),
-      scale: 0.2 + Math.random() * 0.5, // Base scale
-      speed: 0.02 + Math.random() * 0.05, // Very slow speed
+      scale: 0.15 + Math.random() * 0.3, // Base scale
+      speed: 0.01 + Math.random() * 0.03, // Very slow drift speed
       phase: Math.random() * Math.PI * 2,
       tSpeed: 0.5 + Math.random() * 1.5 // Random twinkle speed
     }));
@@ -256,13 +217,14 @@ const TinyStars = () => {
 
     particles.forEach((particle, i) => {
       // Calculate twinkle factor based on sine wave
-      // Normalized sin (-1..1) mapped to roughly 0.3..1.0 for scale
+      // Normalized sin (-1..1) mapped to roughly 0.4..1.2 for scale modulation
+      // This creates a "breathing" size effect that looks like twinkling
       const rawSine = Math.sin(time * particle.tSpeed + particle.phase);
-      const twinkle = 0.3 + 0.7 * (0.5 * (rawSine + 1)); 
+      const twinkle = 0.8 + 0.4 * rawSine; 
       
       // Parallax effect - move opposite to mouse
-      const xOffset = -mouseX * particle.speed * 3; 
-      const yParallax = -mouseY * particle.speed * 3;
+      const xOffset = -mouseX * particle.speed * 2; 
+      const yParallax = -mouseY * particle.speed * 2;
 
       dummy.position.copy(particle.position);
       dummy.position.x += xOffset;
@@ -276,8 +238,7 @@ const TinyStars = () => {
       );
       
       // Apply base scale multiplied by twinkle factor
-      // This varies the size, simulating opacity/brightness changes
-      const s = particle.scale * twinkle;
+      const s = Math.max(0, particle.scale * twinkle);
       dummy.scale.setScalar(s);
       
       dummy.updateMatrix();
@@ -292,9 +253,9 @@ const TinyStars = () => {
       <meshStandardMaterial 
         color="#ffffff" 
         emissive="#ffffff"
-        emissiveIntensity={2}
+        emissiveIntensity={1.5}
         transparent 
-        opacity={0.9}
+        opacity={0.8}
         roughness={0.1}
       />
     </instancedMesh>
