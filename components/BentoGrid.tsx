@@ -30,10 +30,10 @@ const BentoItem: React.FC<BentoItemProps> = ({ title, description, icon, colSpan
         initial={{ opacity: 0, y: 20 }}
         whileInView={{ opacity: 1, y: 0 }}
         whileHover={{ 
-          scale: 1.03,
-          backgroundColor: "rgba(255, 255, 255, 0.1)",
-          borderColor: "rgba(99, 102, 241, 0.4)", // Primary color with opacity
-          boxShadow: "0 20px 40px -10px rgba(99, 102, 241, 0.2)" // Soft primary glow
+          scale: 1.05,
+          backgroundColor: "rgba(255, 255, 255, 0.15)",
+          borderColor: "rgba(99, 102, 241, 0.5)", 
+          boxShadow: "0 25px 50px -12px rgba(99, 102, 241, 0.3)" 
         }}
         viewport={{ once: true, margin: "-50px" }}
         transition={{ type: "spring", stiffness: 300, damping: 20, mass: 0.8 }}

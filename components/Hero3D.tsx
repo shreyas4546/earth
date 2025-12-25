@@ -9,6 +9,7 @@ declare global {
     interface IntrinsicElements {
       group: any;
       mesh: any;
+      instancedMesh: any; 
       meshPhongMaterial: any;
       meshStandardMaterial: any;
       boxGeometry: any;
@@ -27,6 +28,7 @@ declare module 'react' {
     interface IntrinsicElements {
       group: any;
       mesh: any;
+      instancedMesh: any;
       meshPhongMaterial: any;
       meshStandardMaterial: any;
       boxGeometry: any;
@@ -43,8 +45,6 @@ declare module 'react' {
 // ------------------------------------------------------------------
 // CONFIGURATION: DRACO COMPRESSION
 // ------------------------------------------------------------------
-// Pre-configuring the Draco decoder for any GLTF models loaded in the app.
-// This reduces bandwidth for 3D assets by up to 90%.
 useGLTF.setDecoderPath('https://www.gstatic.com/draco/versioned/decoders/1.5.6/');
 
 // ------------------------------------------------------------------
@@ -222,6 +222,86 @@ const Satellite = () => {
 };
 
 // ------------------------------------------------------------------
+// COMPONENT: TINY STARS
+// ------------------------------------------------------------------
+const TinyStars = () => {
+  const meshRef = useRef<THREE.InstancedMesh>(null);
+  const count = 300;
+  
+  // Initialize star data
+  const particles = useMemo(() => {
+    return new Array(count).fill(0).map(() => ({
+      position: new THREE.Vector3(
+        (Math.random() - 0.5) * 35, // Wide spread X
+        (Math.random() - 0.5) * 25, // Wide spread Y
+        (Math.random() - 0.5) * 15 - 8 // Mostly behind
+      ),
+      rotation: new THREE.Euler(Math.random() * Math.PI, Math.random() * Math.PI, 0),
+      scale: 0.2 + Math.random() * 0.5, // Base scale
+      speed: 0.02 + Math.random() * 0.05, // Very slow speed
+      phase: Math.random() * Math.PI * 2,
+      tSpeed: 0.5 + Math.random() * 1.5 // Random twinkle speed
+    }));
+  }, []);
+
+  const dummy = useMemo(() => new THREE.Object3D(), []);
+
+  useFrame((state) => {
+    if (!meshRef.current) return;
+
+    const time = state.clock.getElapsedTime();
+    // Subtle reaction to mouse
+    const mouseX = state.pointer.x * 0.5; 
+    const mouseY = state.pointer.y * 0.5;
+
+    particles.forEach((particle, i) => {
+      // Calculate twinkle factor based on sine wave
+      // Normalized sin (-1..1) mapped to roughly 0.3..1.0 for scale
+      const rawSine = Math.sin(time * particle.tSpeed + particle.phase);
+      const twinkle = 0.3 + 0.7 * (0.5 * (rawSine + 1)); 
+      
+      // Parallax effect - move opposite to mouse
+      const xOffset = -mouseX * particle.speed * 3; 
+      const yParallax = -mouseY * particle.speed * 3;
+
+      dummy.position.copy(particle.position);
+      dummy.position.x += xOffset;
+      dummy.position.y += yParallax;
+
+      // Constant slow rotation
+      dummy.rotation.set(
+        particle.rotation.x + time * 0.05,
+        particle.rotation.y + time * 0.05,
+        particle.rotation.z
+      );
+      
+      // Apply base scale multiplied by twinkle factor
+      // This varies the size, simulating opacity/brightness changes
+      const s = particle.scale * twinkle;
+      dummy.scale.setScalar(s);
+      
+      dummy.updateMatrix();
+      meshRef.current.setMatrixAt(i, dummy.matrix);
+    });
+    meshRef.current.instanceMatrix.needsUpdate = true;
+  });
+
+  return (
+    <instancedMesh ref={meshRef} args={[undefined, undefined, count]}>
+      <octahedronGeometry args={[0.08, 0]} />
+      <meshStandardMaterial 
+        color="#ffffff" 
+        emissive="#ffffff"
+        emissiveIntensity={2}
+        transparent 
+        opacity={0.9}
+        roughness={0.1}
+      />
+    </instancedMesh>
+  );
+};
+
+// ------------------------------------------------------------------
 // MAIN HERO COMPONENT
 // ------------------------------------------------------------------
 const LoadingFallback = () => {
@@ -248,6 +328,7 @@ export const Hero3D: React.FC = () => {
         <Suspense fallback={<LoadingFallback />}>
           <Earth />
           <Satellite />
+          <TinyStars />
         </Suspense>
         
       </Canvas>

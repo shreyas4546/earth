@@ -51,7 +51,7 @@ const App: React.FC = () => {
       {/* Ambient Background Lights (Aurora) */}
       <div className="fixed top-0 left-0 w-full h-full overflow-hidden -z-10 pointer-events-none">
         <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] rounded-full bg-primary/20 blur-[120px] mix-blend-screen animate-blob" />
-        <div className="absolute top-[20%] right-[-10%] w-[400px] h-[400px] rounded-full bg-accent/20 blur-[120px] mix-blend-screen animate-blob animation-delay-2000" />
+        {/* Removed pink accent blob here */}
         <div className="absolute bottom-[-10%] left-[20%] w-[600px] h-[600px] rounded-full bg-blue-500/10 blur-[120px] mix-blend-screen animate-blob animation-delay-4000" />
       </div>
 
