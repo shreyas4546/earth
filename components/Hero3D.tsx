@@ -1,7 +1,17 @@
 import React, { useRef, Suspense, useState, useEffect, useMemo } from 'react';
-import { Canvas, useFrame } from '@react-three/fiber';
+import { Canvas, useFrame, ThreeElements } from '@react-three/fiber';
 import { Sphere, useTexture, useGLTF } from '@react-three/drei';
 import * as THREE from 'three';
+
+// ------------------------------------------------------------------
+// TYPE AUGMENTATION
+// ------------------------------------------------------------------
+// This ensures TypeScript recognizes R3F elements like <mesh>, <group>, etc.
+declare global {
+  namespace JSX {
+    interface IntrinsicElements extends ThreeElements {}
+  }
+}
 
 // ------------------------------------------------------------------
 // CONFIGURATION: DRACO COMPRESSION
